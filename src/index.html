@@ -2,11 +2,24 @@
 <html>
 <head>
 	<title>vanilla todo</title>
-	<script type="text/javascript" src="js/main.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
-<body>
-<div>
-	content
-</div>
+<body class="todo">
+	<form class="todo__addition" onsubmit="return tasks.add(this)">
+		<select class="todo__addition__select">
+			<option>1</option>
+			<option>2</option>
+			<option>3</option>
+			<option>4</option>
+		</select>
+		<input type="text" name="task_name">
+		<button type="submit" type="button">add</button>
+	</form>
+
+	<div class="todo__tasks" id="todo__tasks">
+
+	</div>
+
+	<script type="text/javascript" src="js/tasks.js"></script>
 </body>
 </html>

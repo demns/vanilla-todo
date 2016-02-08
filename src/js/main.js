@@ -1,3 +1,7 @@
-(function() {
-	console.log('123')
-})();
+// (function() {
+// 	task.get();
+// })();
+
+window.onload = function() {
+	task.get();
+}

@@ -1,0 +1,9 @@
+[	
+	{
+		"name": "First",
+		"checked": false
+	}, {
+		"name": "Second",
+		"checked": true
+	}
+]

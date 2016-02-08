@@ -1,0 +1,9 @@
+.todo {
+	background-color: #123456;
+	color: white;
+	margin: 20px;
+}
+
+.todo__addition {
+	margin: 15px;
+}
