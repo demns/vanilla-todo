@@ -48,7 +48,6 @@ app.delete('/tasks', function(request, respond) {
 });
 
 function readJSONFile(filename, callback) {
-	console.log(filename)
 	require("fs").readFile(filename, function (err, data) {
 		if(err) {
 			callback(err);

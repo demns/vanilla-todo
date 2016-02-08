@@ -14,7 +14,7 @@ var tasks = {
 	},
 
 	delete: function(index) {
-		xhrRequester.sendDelete('/tasks', {
+		xhrRequester.sendDELETE('/tasks', {
 			index: index 
 		});
 	},
@@ -25,8 +25,6 @@ var tasks = {
 
 	updateView: function(data) {
 		this.current = JSON.parse(data);
-
-		var selectNumberElement = document.getElementById("todo__addition__select");
 
 		var selectNumberElement = document.getElementById("todo__addition__select");
 		while (selectNumberElement.firstChild) {
@@ -85,7 +83,7 @@ var tasks = {
 };
 
 var xhrRequester = {
-	sendDelete: function(url, data) {
+	sendDELETE: function(url, data) {
 		var xhr = new XMLHttpRequest();
 		xhr.open('DELETE', url, true);
 		xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
