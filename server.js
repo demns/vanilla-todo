@@ -47,10 +47,6 @@ app.delete('/tasks', function(request, respond) {
 	});
 });
 
-app.delete('/user', function (req, res) {
-  res.send('Got a DELETE request at /user');
-});
-
 function readJSONFile(filename, callback) {
 	console.log(filename)
 	require("fs").readFile(filename, function (err, data) {
