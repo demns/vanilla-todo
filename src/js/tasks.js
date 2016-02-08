@@ -9,12 +9,18 @@ var tasks = {
 			postData[encodeURIComponent(e.name)] = encodeURIComponent(e.value);
 		}
 
-		xhrRequester.sendPOST('/tasks', postData);
+		xhrRequester.sendPUT('/tasks', postData);
 		return false;
 	},
 
+	delete: function(index) {
+		xhrRequester.sendDelete('/tasks', {
+			index: index 
+		});
+	},
+
 	get: function() {
-		xhrRequester.sendGET('/tasks', this.updateView);
+		xhrRequester.sendGET('/tasks');
 	},
 
 	updateView: function(data) {
@@ -31,7 +37,7 @@ var tasks = {
 		while (todoTasksElement.firstChild) {
 		    todoTasksElement.removeChild(todoTasksElement.firstChild);
 		}
-		
+
 		this.current.forEach(function(task, taskIndex) {
 			var taskName = document.createElement("span");
 			taskName.className = 'todo__tasks__task--name';
@@ -48,11 +54,20 @@ var tasks = {
 			checkbox.checked = task.checked;
 			checkbox.id = "todo__tasks__task--checkbox";
 
+			var deleteButton = document.createElement("button");
+			deleteButton.className = 'todo__tasks__task--delete_button';
+			deleteButton.appendChild(document.createTextNode('delete'));
+
+			deleteButton.onclick = function() {
+				tasks.delete(taskIndex + 1);
+			};
+
 			var newTask = document.createElement("div"); 
 			newTask.className = "todo__tasks__task";
 			newTask.appendChild(taskNumber);
 			newTask.appendChild(checkbox);
 			newTask.appendChild(taskName);
+			newTask.appendChild(deleteButton);
 
 			todoTasksElement.appendChild(newTask);
 
@@ -70,20 +85,32 @@ var tasks = {
 };
 
 var xhrRequester = {
+	sendDelete: function(url, data) {
+		var xhr = new XMLHttpRequest();
+		xhr.open('DELETE', url, true);
+		xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+		xhr.onload = function () {
+		    console.log(this.responseText);
+		    tasks.updateView(this.responseText);
+		};
+
+		xhr.send(JSON.stringify(data));
+	},
+
 	sendGET: function (url, callback) {
 		var xhr = new XMLHttpRequest();
 		xhr.open('GET', url, true);
 		xhr.onload = function () {
 		    console.log(this.responseText);
-		    callback(this.responseText);
+		    tasks.updateView(this.responseText);
 		};
 
 		xhr.send();
 	},
 
-	sendPOST: function (url, data) {
+	sendPUT: function (url, data) {
 		var xhr = new XMLHttpRequest();
-		xhr.open('POST', url, true);
+		xhr.open('PUT', url, true);
 		xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 		xhr.onload = function () {
 		    console.log(this.responseText);

@@ -10,7 +10,7 @@ var tasksJSONPath = './data/tasks.json';
 app.use(serveStatic('src', {'index': ['index.html']}));
 app.use(bodyParser.json());
 
-app.post('/tasks', function(request, respond) {
+app.put('/tasks', function(request, respond) {
 	var newTask = request.body;
 
 	readJSONFile(tasksJSONPath, function (err, tasks) {
@@ -26,36 +26,30 @@ app.post('/tasks', function(request, respond) {
 			respond.send(newTasks);
 		});
 	});
-
-
-	// console.log(request)
-	// request.on('data', function(data) {
- //        console.log(data)
- //    });
- //    request.on('end', function (){
- //        // fs.appendFile(filePath, body, function() {
- //        //     respond.end();
- //        // });
- //    });
-
-    // var body = '';
-    // filePath = __dirname + '/data/data.txt';
-    // request.on('data', function(data) {
-    //     body += data;
-    // });
-
-    // request.on('end', function (){
-    //     fs.appendFile(filePath, body, function() {
-    //         respond.end();
-    //     });
-    // });
 });
 
 app.get('/tasks', function(request, respond) {
 	readJSONFile(tasksJSONPath, function (err, data) {
 		respond.send(data);
 	});
-})
+});
+
+app.delete('/tasks', function(request, respond) {
+	var taskToDelete = request.body && request.body.index;
+
+	readJSONFile(tasksJSONPath, function (err, tasks) {
+		tasks.splice(taskToDelete - 1, 1);
+
+		var newTasks = JSON.stringify(tasks);
+		fs.writeFile(tasksJSONPath, newTasks, function() {
+			respond.send(newTasks);
+		});
+	});
+});
+
+app.delete('/user', function (req, res) {
+  res.send('Got a DELETE request at /user');
+});
 
 function readJSONFile(filename, callback) {
 	console.log(filename)
