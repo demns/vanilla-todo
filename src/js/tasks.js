@@ -52,6 +52,14 @@ var tasks = {
 			checkbox.checked = task.checked;
 			checkbox.id = "todo__tasks__task--checkbox";
 
+			var editButton = document.createElement("button");
+			editButton.className = 'todo__tasks__task--edit_button';
+			editButton.appendChild(document.createTextNode('edit'));
+
+			editButton.onclick = function() {
+				tasks.editName(taskIndex + 1);
+			};
+
 			var deleteButton = document.createElement("button");
 			deleteButton.className = 'todo__tasks__task--delete_button';
 			deleteButton.appendChild(document.createTextNode('delete'));
@@ -65,6 +73,7 @@ var tasks = {
 			newTask.appendChild(taskNumber);
 			newTask.appendChild(checkbox);
 			newTask.appendChild(taskName);
+			newTask.appendChild(editButton);
 			newTask.appendChild(deleteButton);
 
 			todoTasksElement.appendChild(newTask);
