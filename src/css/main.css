@@ -4,6 +4,7 @@
 	margin: 20px;
 }
 
-.todo__addition {
+.todo__addition,
+.todo__tasks {
 	margin: 15px;
 }

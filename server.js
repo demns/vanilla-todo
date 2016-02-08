@@ -1,3 +1,4 @@
+var bodyParser = require('body-parser');
 var express = require('express');
 var fs = require('fs');
 var serveStatic = require('serve-static');
@@ -7,11 +8,23 @@ var app = express();
 var tasksJSONPath = './data/tasks.json';
 
 app.use(serveStatic('src', {'index': ['index.html']}));
+app.use(bodyParser.json());
 
 app.post('/tasks', function(request, respond) {
-	readJSONFile(tasksJSONPath, function (err, data) {
-		respond.send('done posting' + request.body);
-		// respond.send(data);
+	var newTask = request.body;
+
+	readJSONFile(tasksJSONPath, function (err, tasks) {
+		var taskToInsert = {
+			name: newTask.name,
+			checked: false
+		};
+
+		tasks.splice(newTask.id - 1, 0, taskToInsert);
+
+		var newTasks = JSON.stringify(tasks);
+		fs.writeFile(tasksJSONPath, newTasks, function() {
+			respond.send(newTasks);
+		});
 	});
 
 

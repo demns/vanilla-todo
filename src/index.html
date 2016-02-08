@@ -6,13 +6,9 @@
 </head>
 <body class="todo">
 	<form class="todo__addition" onsubmit="return tasks.add(this)">
-		<select class="todo__addition__select">
-			<option>1</option>
-			<option>2</option>
-			<option>3</option>
-			<option>4</option>
+		<select class="todo__addition__select" id="todo__addition__select" name="id">
 		</select>
-		<input type="text" name="task_name">
+		<input type="text" name="name">
 		<button type="submit" type="button">add</button>
 	</form>
 
