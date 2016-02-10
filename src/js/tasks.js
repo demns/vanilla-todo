@@ -9,22 +9,22 @@ var tasks = {
 			postData[encodeURIComponent(e.name)] = encodeURIComponent(e.value);
 		}
 
-		xhrRequester.sendPUT('/tasks', postData);
+		xhrRequester.send('/tasks', 'PUT', postData);
 		return false;
 	},
 
 	delete: function(index) {
-		xhrRequester.sendDELETE('/tasks', {
+		xhrRequester.send('/tasks', 'DELETE', {
 			index: index 
 		});
 	},
 
 	get: function() {
-		xhrRequester.sendGET('/tasks');
+		xhrRequester.send('/tasks', 'GET');
 	},
 
 	post: function(text, id, checked) {
-		xhrRequester.sendPOST('/tasks', {
+		xhrRequester.send('/tasks', 'POST', {
 			checked: checked,
 			index: id,
 			text: text
@@ -72,7 +72,6 @@ var tasks = {
 			var deleteButton = document.createElement("button");
 			deleteButton.className = 'todo__tasks__task--delete_button';
 			deleteButton.appendChild(document.createTextNode('delete'));
-
 			deleteButton.onclick = function() {
 				tasks.delete(taskIndex + 1);
 			};
@@ -100,44 +99,9 @@ var tasks = {
 };
 
 var xhrRequester = {
-	sendDELETE: function(url, data) {
+	send: function(url, method, data) {
 		var xhr = new XMLHttpRequest();
-		xhr.open('DELETE', url, true);
-		xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-		xhr.onload = function () {
-		    console.log(this.responseText);
-		    tasks.updateView(this.responseText);
-		};
-
-		xhr.send(JSON.stringify(data));
-	},
-
-	sendGET: function (url, callback) {
-		var xhr = new XMLHttpRequest();
-		xhr.open('GET', url, true);
-		xhr.onload = function () {
-		    console.log(this.responseText);
-		    tasks.updateView(this.responseText);
-		};
-
-		xhr.send();
-	},
-
-	sendPUT: function (url, data) {
-		var xhr = new XMLHttpRequest();
-		xhr.open('PUT', url, true);
-		xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-		xhr.onload = function () {
-		    console.log(this.responseText);
-			tasks.updateView(this.responseText)
-		};
-
-		xhr.send(JSON.stringify(data));
-	},
-
-	sendPOST: function(url, data) {
-		var xhr = new XMLHttpRequest();
-		xhr.open('POST', url, true);
+		xhr.open(method, url, true);
 		xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 		xhr.onload = function () {
 		    console.log(this.responseText);
