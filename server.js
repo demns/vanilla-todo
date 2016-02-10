@@ -28,6 +28,22 @@ app.put('/tasks', function(request, respond) {
 	});
 });
 
+app.post('/tasks', function(request, respond) {
+	var taskToUpdateId = request.body && request.body.index;
+	var taskToUpdateText = request.body && request.body.text;
+	var taskToUpdateChecking = request.body && request.body.checked;
+
+	readJSONFile(tasksJSONPath, function (err, tasks) {
+		tasks[taskToUpdateId - 1].name = taskToUpdateText;
+		tasks[taskToUpdateId - 1].checked = !taskToUpdateChecking;
+
+		var newTasks = JSON.stringify(tasks);
+		fs.writeFile(tasksJSONPath, newTasks, function() {
+			respond.send(newTasks);
+		});
+	});
+});
+
 app.get('/tasks', function(request, respond) {
 	readJSONFile(tasksJSONPath, function (err, data) {
 		respond.send(data);
