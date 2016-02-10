@@ -13,19 +13,19 @@ app.use(bodyParser.json());
 app.put('/tasks', function(request, respond) {
 	var newTask = request.body;
 
-	readJSONFile(tasksJSONPath, function (err, tasks) {
-		var taskToInsert = {
-			name: newTask.name,
-			checked: false
-		};
+	tasks = JSON.parse(readJSONFile(tasksJSONPath));
 
-		tasks.splice(newTask.id - 1, 0, taskToInsert);
+	var taskToInsert = {
+		name: newTask.name,
+		checked: false
+	};
 
-		var newTasks = JSON.stringify(tasks);
-		fs.writeFile(tasksJSONPath, newTasks, function() {
-			respond.send(newTasks);
-		});
-	});
+	tasks.splice(newTask.id - 1, 0, taskToInsert);
+
+	var newTasks = JSON.stringify(tasks);
+	fs.writeFileSync(tasksJSONPath, newTasks);
+
+	respond.send(newTasks);
 });
 
 app.post('/tasks', function(request, respond) {
@@ -33,48 +33,37 @@ app.post('/tasks', function(request, respond) {
 	var taskToUpdateText = request.body && request.body.text;
 	var taskToUpdateChecking = request.body && request.body.checked;
 
-	readJSONFile(tasksJSONPath, function (err, tasks) {
-		tasks[taskToUpdateId - 1].name = taskToUpdateText;
-		tasks[taskToUpdateId - 1].checked = !taskToUpdateChecking;
+	tasks = JSON.parse(readJSONFile(tasksJSONPath));
 
-		var newTasks = JSON.stringify(tasks);
-		fs.writeFile(tasksJSONPath, newTasks, function() {
-			respond.send(newTasks);
-		});
-	});
+	tasks[taskToUpdateId - 1].name = taskToUpdateText;
+	tasks[taskToUpdateId - 1].checked = taskToUpdateChecking;
+
+	var newTasks = JSON.stringify(tasks);
+	fs.writeFileSync(tasksJSONPath, newTasks);
+
+	respond.send(newTasks);
 });
 
 app.get('/tasks', function(request, respond) {
-	readJSONFile(tasksJSONPath, function (err, data) {
-		respond.send(data);
-	});
+	respond.send(readJSONFile(tasksJSONPath));
 });
 
 app.delete('/tasks', function(request, respond) {
 	var taskToDelete = request.body && request.body.index;
 
-	readJSONFile(tasksJSONPath, function (err, tasks) {
-		tasks.splice(taskToDelete - 1, 1);
+	var tasks = JSON.parse(readJSONFile(tasksJSONPath));
 
-		var newTasks = JSON.stringify(tasks);
-		fs.writeFile(tasksJSONPath, newTasks, function() {
-			respond.send(newTasks);
-		});
-	});
+	tasks.splice(taskToDelete - 1, 1);
+
+	var newTasks = JSON.stringify(tasks);
+	fs.writeFileSync(tasksJSONPath, newTasks);
+
+	respond.send(newTasks);
 });
 
 function readJSONFile(filename, callback) {
-	require("fs").readFile(filename, function (err, data) {
-		if(err) {
-			callback(err);
-			return;
-		}
-
-		try {
-			callback(null, JSON.parse(data));
-		} catch(exception) {
-			callback(exception);
-		}
+	return fs.readFileSync(filename, {
+		encoding: 'utf8'
 	});
 }
 
