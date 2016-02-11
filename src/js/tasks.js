@@ -1,6 +1,7 @@
 var elements = {
 	additionForm: document.getElementById("todo__addition"),
 	additionSelect: document.getElementById("todo__addition__select"),
+	buttonClass: 'todo__tasks__task--delete_button',
 	checkboxClass: 'todo__tasks__task--checkbox',
 	tasksContainer: document.getElementById("todo__tasks")
 };
@@ -85,11 +86,9 @@ var tasks = {
 			checkbox.setAttribute('data-id', taskIndex + 1);
 
 			var deleteButton = document.createElement("button");
-			deleteButton.className = 'todo__tasks__task--delete_button';
+			deleteButton.className = elements.buttonClass;
 			deleteButton.appendChild(document.createTextNode('delete'));
-			deleteButton.onclick = function() {
-				tasks.delete(taskIndex + 1);
-			};
+			deleteButton.setAttribute('data-id', taskIndex + 1);
 
 			var newTask = document.createElement("li"); 
 			newTask.className = "todo__tasks__task";
@@ -113,6 +112,11 @@ var tasks = {
 
 	updateViewWithAdd: function() {
 
+	},
+
+	updateViewWithDelete: function(element) {
+		var parentNode = element.parentNode;
+		parentNode.parentNode.removeChild(parentNode);
 	}
 };
 
@@ -129,6 +133,7 @@ function XhrRequester() {
 
 			    if (this.responseText !== JSON.stringify(tasks.current)) {
 			    	console.log('difference')
+
 			    	tasks.current = JSON.parse(this.responseText);
 			    	tasks.updateView(this.responseText);
 			    }
@@ -155,5 +160,15 @@ document.addEventListener('DOMContentLoaded', function() {
 			checked: event.target.checked,
 			index: id
 		});
+	});
+
+	elements.tasksContainer.addEventListener('click', function(event) {
+		if (event.target.className !== elements.buttonClass) {
+			return;
+		}
+
+		var id = event.target.getAttribute('data-id');
+		tasks.updateViewWithDelete(event.target);
+		tasks.delete(id);
 	});
 });
