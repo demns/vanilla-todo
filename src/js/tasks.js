@@ -1,5 +1,12 @@
+var elements = {
+	additionForm: document.getElementById("todo__addition"),
+	additionSelect: document.getElementById("todo__addition__select"),
+	tasksContainer: document.getElementById("todo__tasks")
+};
+
 var tasks = {
-	current: {},
+	current: [],
+	xhrRequester: new XhrRequester(),
 
 	add: function(elem) {
 		var postData = {};
@@ -9,39 +16,42 @@ var tasks = {
 			postData[encodeURIComponent(e.name)] = encodeURIComponent(e.value);
 		}
 
-		xhrRequester.send('/tasks', 'PUT', postData); //
+		var taskToInsert = {
+			name: postData.name,
+			checked: false
+		};
+
+		this.current.splice(postData.id - 1, 0, taskToInsert);
+		this.updateViewWithAdd();
+
+		this.xhrRequester.send('/tasks', 'PUT', postData); //
 	},
 
 	delete: function(index) {
-		xhrRequester.send('/tasks', 'DELETE', {
+		this.xhrRequester.send('/tasks', 'DELETE', {
 			index: index 
 		});
 	},
 
 	get: function() {
-		xhrRequester.send('/tasks', 'GET');
+		this.xhrRequester.send('/tasks', 'GET');
+	    tasks.updateView(this.responseText);
 	},
 
-	post: function(text, id, checked) {
-		xhrRequester.send('/tasks', 'POST', {
-			checked: checked,
-			index: id,
-			text: text
-		});
+	post: function(data) {
+		this.xhrRequester.send('/tasks', 'POST', data);
 	},
 
-	updateView: function(data) {
-		this.current = JSON.parse(data);
+	updateView: function() {
+		console.log('updateView')
+		if (this.current.length === 0) return;
 
-		var selectNumberElement = document.getElementById("todo__addition__select");
-		var todoTasksElement = document.getElementById("todo__tasks");
-
-		while (selectNumberElement.firstChild) {
-		    selectNumberElement.removeChild(selectNumberElement.firstChild);
+		while (elements.additionSelect.lastChild) {
+			elements.additionSelect.removeChild(elements.additionSelect.lastChild);
 		}
 
-		while (todoTasksElement.firstChild) {
-		    todoTasksElement.removeChild(todoTasksElement.firstChild);
+		while (elements.tasksContainer.lastChild) {
+			elements.tasksContainer.removeChild(elements.tasksContainer.lastChild);
 		}
 
 		this.current.forEach(function(task, taskIndex) {
@@ -64,8 +74,12 @@ var tasks = {
 			checkbox.type = "checkbox";
 			checkbox.checked = task.checked;
 			checkbox.onchange = function() {
-				tasks.post(task.name, taskIndex + 1, !task.checked);
-			}
+				tasks.post({
+					checked: !task.checked,
+					index: taskIndex + 1,
+					text: task.name
+				});
+			};
 
 			var deleteButton = document.createElement("button");
 			deleteButton.className = 'todo__tasks__task--delete_button';
@@ -81,43 +95,52 @@ var tasks = {
 			newTask.appendChild(taskName);
 			newTask.appendChild(deleteButton);
 
-			todoTasksElement.appendChild(newTask);
+			elements.tasksContainer.appendChild(newTask);
 
 			var newOption = document.createElement("option");
 			newOption.appendChild(document.createTextNode(taskIndex + 1));
 
-			selectNumberElement.appendChild(newOption);
+			elements.additionSelect.appendChild(newOption);
 		});
 		
 		var newOption = document.createElement("option");
 		newOption.appendChild(document.createTextNode(this.current.length + 1));
 		//createdocumentfragment
-		selectNumberElement.appendChild(newOption);
+		elements.additionSelect.appendChild(newOption);
+	},
+
+	updateViewWithAdd: function() {
+		
 	}
 };
 
-var xhr = new XMLHttpRequest();
 
-var xhrRequester = {
-	send: function(url, method, data) {
-		xhr.open(method, url, true);
-		xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-		xhr.onload = function () {
-		    console.log(this.responseText);
-		    tasks.updateView(this.responseText);
-		};
+function XhrRequester() {
+	var xhr = new XMLHttpRequest();
 
-		xhr.send(JSON.stringify(data));
-	}
+	return {
+		send: function(url, method, data) {
+			xhr.open(method, url, true);
+			xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+			xhr.onload = function () {
+				console.log('post done')
+			    console.log(this.responseText);
+			    if (this.responseText !== JSON.stringify(tasks.current)) {
+			    	tasks.current = JSON.parse(this.responseText);
+			    	tasks.updateView(this.responseText);
+			    }
+			};
+
+			xhr.send(JSON.stringify(data));
+		}
+	};
 }
 
-window.onload = function() {
+window.addEventListener('load', function() {
 	tasks.get();
 
-	var todoAddition = document.getElementById("todo__addition");
-	todoAddition.onsubmit = function(event) {
+	elements.additionForm.addEventListener('submit', function(event) {
+		event.preventDefault();
 		tasks.add(this);
-
-		return false;
-	};
-}	
+	});
+});
