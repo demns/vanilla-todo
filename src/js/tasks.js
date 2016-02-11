@@ -22,7 +22,8 @@ var tasks = {
 		};
 
 		this.current.splice(postData.id - 1, 0, taskToInsert);
-		this.updateViewWithAdd();
+		// this.updateViewWithAdd();
+		this.updateView();
 
 		this.xhrRequester.send('/tasks', 'PUT', postData); //
 	},
@@ -65,10 +66,6 @@ var tasks = {
 				tasks.post(this.innerHTML, taskIndex + 1, task.checked);
 			};
 
-			var taskNumber = document.createElement("span");
-			taskNumber.className = 'todo__tasks__task--number';
-			taskNumber.appendChild(document.createTextNode(taskIndex + 1));
-
 			var checkbox = document.createElement('input');
 			checkbox.className = 'todo__tasks__task--checkbox';
 			checkbox.type = "checkbox";
@@ -88,9 +85,8 @@ var tasks = {
 				tasks.delete(taskIndex + 1);
 			};
 
-			var newTask = document.createElement("div"); 
+			var newTask = document.createElement("li"); 
 			newTask.className = "todo__tasks__task";
-			newTask.appendChild(taskNumber);
 			newTask.appendChild(checkbox);
 			newTask.appendChild(taskName);
 			newTask.appendChild(deleteButton);
@@ -110,7 +106,7 @@ var tasks = {
 	},
 
 	updateViewWithAdd: function() {
-		
+
 	}
 };
 
