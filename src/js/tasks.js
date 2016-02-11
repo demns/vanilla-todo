@@ -9,7 +9,7 @@ var tasks = {
 			postData[encodeURIComponent(e.name)] = encodeURIComponent(e.value);
 		}
 
-		xhrRequester.send('/tasks', 'PUT', postData);
+		xhrRequester.send('/tasks', 'PUT', postData); //
 	},
 
 	delete: function(index) {
@@ -34,11 +34,12 @@ var tasks = {
 		this.current = JSON.parse(data);
 
 		var selectNumberElement = document.getElementById("todo__addition__select");
+		var todoTasksElement = document.getElementById("todo__tasks");
+
 		while (selectNumberElement.firstChild) {
 		    selectNumberElement.removeChild(selectNumberElement.firstChild);
 		}
 
-		var todoTasksElement = document.getElementById("todo__tasks");
 		while (todoTasksElement.firstChild) {
 		    todoTasksElement.removeChild(todoTasksElement.firstChild);
 		}
@@ -61,7 +62,6 @@ var tasks = {
 			var checkbox = document.createElement('input');
 			checkbox.className = 'todo__tasks__task--checkbox';
 			checkbox.type = "checkbox";
-			checkbox.name = "todo__tasks__task--checkbox";
 			checkbox.checked = task.checked;
 			checkbox.onchange = function() {
 				tasks.post(task.name, taskIndex + 1, !task.checked);
@@ -91,7 +91,7 @@ var tasks = {
 		
 		var newOption = document.createElement("option");
 		newOption.appendChild(document.createTextNode(this.current.length + 1));
-		
+		//createdocumentfragment
 		selectNumberElement.appendChild(newOption);
 	}
 };
@@ -116,7 +116,7 @@ window.onload = function() {
 
 	var todoAddition = document.getElementById("todo__addition");
 	todoAddition.onsubmit = function(event) {
-		tasks.add(todoAddition);
+		tasks.add(this);
 
 		return false;
 	};
