@@ -1,6 +1,7 @@
 var elements = {
 	additionForm: document.getElementById("todo__addition"),
 	additionSelect: document.getElementById("todo__addition__select"),
+	checkboxClass: 'todo__tasks__task--checkbox',
 	tasksContainer: document.getElementById("todo__tasks")
 };
 
@@ -67,7 +68,7 @@ var tasks = {
 				if (tasks.current[taskIndex].name === this.innerHTML) {
 					return;
 				}
-				
+
 				tasks.current[taskIndex].name = this.innerHTML;
 
 				tasks.post({
@@ -78,16 +79,10 @@ var tasks = {
 			};
 
 			var checkbox = document.createElement('input');
-			checkbox.className = 'todo__tasks__task--checkbox';
+			checkbox.className = elements.checkboxClass;
 			checkbox.type = "checkbox";
 			checkbox.checked = task.checked;
-			checkbox.onchange = function() {
-				tasks.post({
-					checked: !task.checked,
-					index: taskIndex + 1,
-					text: task.name
-				});
-			};
+			checkbox.setAttribute('data-id', taskIndex + 1);
 
 			var deleteButton = document.createElement("button");
 			deleteButton.className = 'todo__tasks__task--delete_button';
@@ -133,6 +128,7 @@ function XhrRequester() {
                 console.log(this.responseText);
 
 			    if (this.responseText !== JSON.stringify(tasks.current)) {
+			    	console.log('difference')
 			    	tasks.current = JSON.parse(this.responseText);
 			    	tasks.updateView(this.responseText);
 			    }
@@ -143,11 +139,21 @@ function XhrRequester() {
 	};
 }
 
-window.addEventListener('load', function() {
+document.addEventListener('DOMContentLoaded', function() {
 	tasks.get();
 
 	elements.additionForm.addEventListener('submit', function(event) {
 		event.preventDefault();
 		tasks.add(this);
+	});
+
+	elements.tasksContainer.addEventListener('change', function(event) {
+		var id = event.target.getAttribute('data-id');
+		tasks.current[id - 1].checked = event.target.checked;
+
+		tasks.post({
+			checked: event.target.checked,
+			index: id
+		});
 	});
 });

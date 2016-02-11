@@ -34,8 +34,11 @@ app.post('/tasks', function(request, respond) {
 	var taskToUpdateChecking = request.body && request.body.checked;
 
 	tasks = JSON.parse(readJSONFile(tasksJSONPath));
-
-	tasks[taskToUpdateId - 1].name = taskToUpdateText;
+	
+	if (taskToUpdateText) { 
+		tasks[taskToUpdateId - 1].name = taskToUpdateText;
+	}
+	
 	tasks[taskToUpdateId - 1].checked = taskToUpdateChecking;
 
 	var newTasks = JSON.stringify(tasks);
