@@ -10,7 +10,6 @@ var tasks = {
 		}
 
 		xhrRequester.send('/tasks', 'PUT', postData);
-		return false;
 	},
 
 	delete: function(index) {
@@ -64,7 +63,6 @@ var tasks = {
 			checkbox.type = "checkbox";
 			checkbox.name = "todo__tasks__task--checkbox";
 			checkbox.checked = task.checked;
-			checkbox.id = "todo__tasks__task--checkbox";
 			checkbox.onchange = function() {
 				tasks.post(task.name, taskIndex + 1, !task.checked);
 			}
@@ -98,9 +96,10 @@ var tasks = {
 	}
 };
 
+var xhr = new XMLHttpRequest();
+
 var xhrRequester = {
 	send: function(url, method, data) {
-		var xhr = new XMLHttpRequest();
 		xhr.open(method, url, true);
 		xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 		xhr.onload = function () {
@@ -114,4 +113,11 @@ var xhrRequester = {
 
 window.onload = function() {
 	tasks.get();
-}
+
+	var todoAddition = document.getElementById("todo__addition");
+	todoAddition.onsubmit = function(event) {
+		tasks.add(todoAddition);
+
+		return false;
+	};
+}	
