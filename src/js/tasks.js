@@ -29,6 +29,9 @@ var tasks = {
 	},
 
 	delete: function(index) {
+		this.current.splice(index - 1, 1);
+		this.updateView();
+
 		this.xhrRequester.send('/tasks', 'DELETE', {
 			index: index 
 		});
@@ -36,7 +39,6 @@ var tasks = {
 
 	get: function() {
 		this.xhrRequester.send('/tasks', 'GET');
-	    tasks.updateView(this.responseText);
 	},
 
 	post: function(data) {
@@ -45,7 +47,6 @@ var tasks = {
 
 	updateView: function() {
 		console.log('updateView')
-		if (this.current.length === 0) return;
 
 		while (elements.additionSelect.lastChild) {
 			elements.additionSelect.removeChild(elements.additionSelect.lastChild);
@@ -63,7 +64,17 @@ var tasks = {
 			taskName.appendChild(document.createTextNode(task.name));
 
 			taskName.onblur = function () {
-				tasks.post(this.innerHTML, taskIndex + 1, task.checked);
+				if (tasks.current[taskIndex].name === this.innerHTML) {
+					return;
+				}
+				
+				tasks.current[taskIndex].name = this.innerHTML;
+
+				tasks.post({
+					checked: task.checked,
+					index: taskIndex + 1,
+					text: this.innerHTML
+				});
 			};
 
 			var checkbox = document.createElement('input');
@@ -119,8 +130,8 @@ function XhrRequester() {
 			xhr.open(method, url, true);
 			xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 			xhr.onload = function () {
-				console.log('post done')
-			    console.log(this.responseText);
+                console.log(this.responseText);
+
 			    if (this.responseText !== JSON.stringify(tasks.current)) {
 			    	tasks.current = JSON.parse(this.responseText);
 			    	tasks.updateView(this.responseText);
