@@ -3,6 +3,8 @@ var elements = {
 	additionSelect: document.getElementById("todo__addition__select"),
 	buttonClass: 'todo__tasks__task--delete_button',
 	checkboxClass: 'todo__tasks__task--checkbox',
+	nameClass: 'todo__tasks__task--name',
+	taskContainerClass: 'todo__tasks__task',
 	tasksContainer: document.getElementById("todo__tasks")
 };
 
@@ -11,22 +13,23 @@ var tasks = {
 	xhrRequester: new XhrRequester(),
 
 	add: function(elem) {
-		var postData = {};
+		var newTodoData = {};
 
 		for (var i = 0; i < elem.elements.length - 1; i++ ) {
 	    	var e = elem.elements[i];
-			postData[encodeURIComponent(e.name)] = encodeURIComponent(e.value);
+			newTodoData[encodeURIComponent(e.name)] = encodeURIComponent(e.value);
 		}
+		newTodoData.id -= 1;
 
 		var taskToInsert = {
-			name: postData.name,
+			name: newTodoData.name,
 			checked: false
 		};
 
-		this.current.splice(postData.id - 1, 0, taskToInsert);
-		// this.updateView();
+		this.current.splice(newTodoData.id, 0, taskToInsert);
+		this.updateViewWithAdd(newTodoData);
 
-		this.xhrRequester.send('/tasks', 'PUT', postData); //
+		this.xhrRequester.send('/tasks', 'PUT', newTodoData);
 	},
 
 	delete: function(index) {
@@ -58,27 +61,8 @@ var tasks = {
 		var fragForOptions = document.createDocumentFragment();
 
 		this.current.forEach(function(task, taskIndex) {
-			var taskName = document.createElement("span");
-			taskName.className = 'todo__tasks__task--name';
-			taskName.setAttribute('contenteditable', true);
-			taskName.appendChild(document.createTextNode(task.name));
-
-			var checkbox = document.createElement('input');
-			checkbox.className = elements.checkboxClass;
-			checkbox.type = "checkbox";
-			checkbox.checked = task.checked;
-
-			var deleteButton = document.createElement("button");
-			deleteButton.className = elements.buttonClass;
-			deleteButton.appendChild(document.createTextNode('delete'));
-
-			var newTask = document.createElement("li"); 
-			newTask.className = "todo__tasks__task";
-			newTask.appendChild(checkbox);
-			newTask.appendChild(taskName);
-			newTask.appendChild(deleteButton);
-			fragForTasks.appendChild(newTask);
-
+			tasks.createFragWithTask(fragForTasks, task, taskIndex);
+			
 			var newOption = document.createElement("option");
 			newOption.appendChild(document.createTextNode(taskIndex + 1));
 			fragForOptions.appendChild(newOption);
@@ -91,12 +75,46 @@ var tasks = {
 		var newOption = document.createElement("option");
 		newOption.appendChild(document.createTextNode(this.current.length + 1));
 		fragForOptions.appendChild(newOption);
-		
+
 		elements.additionSelect.appendChild(fragForOptions);
 	},
 
-	updateViewWithAdd: function() {
+	createFragWithTask: function(fragForTasks, task, taskIndex) {
+		var taskName = document.createElement("span");
+		taskName.className = elements.nameClass;
+		taskName.setAttribute('contenteditable', true);
+		taskName.appendChild(document.createTextNode(task.name));
 
+		var checkbox = document.createElement('input');
+		checkbox.className = elements.checkboxClass;
+		checkbox.type = "checkbox";
+		checkbox.checked = task.checked;
+
+		var deleteButton = document.createElement("button");
+		deleteButton.className = elements.buttonClass;
+		deleteButton.appendChild(document.createTextNode('delete'));
+
+		var newTask = document.createElement("li"); 
+		newTask.className = elements.taskContainerClass;
+		newTask.appendChild(checkbox);
+		newTask.appendChild(taskName);
+		newTask.appendChild(deleteButton);
+		fragForTasks.appendChild(newTask);
+	},
+
+	updateViewWithAdd: function(newTodoData) {
+		var allTasks = elements.tasksContainer.getElementsByClassName(elements.taskContainerClass);
+
+		var fragForTasks = document.createDocumentFragment();
+
+		tasks.createFragWithTask(fragForTasks, newTodoData, newTodoData.id);
+			
+		elements.tasksContainer.insertBefore(fragForTasks, allTasks[newTodoData.id])
+
+		var newOption = document.createElement("option");
+		newOption.appendChild(document.createTextNode(this.current.length + 1));
+
+		elements.additionSelect.appendChild(newOption);
 	},
 
 	updateViewWithDelete: function(element) {
