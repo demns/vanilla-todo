@@ -20,7 +20,7 @@ app.put('/tasks', function(request, respond) {
 		checked: false
 	};
 
-	tasks.splice(newTask.id - 1, 0, taskToInsert);
+	tasks.splice(newTask.id, 0, taskToInsert);
 
 	var newTasks = JSON.stringify(tasks);
 	fs.writeFileSync(tasksJSONPath, newTasks);
@@ -34,12 +34,12 @@ app.post('/tasks', function(request, respond) {
 	var taskToUpdateChecking = request.body && request.body.checked;
 
 	tasks = JSON.parse(readJSONFile(tasksJSONPath));
-	
+
 	if (taskToUpdateText) { 
-		tasks[taskToUpdateId - 1].name = taskToUpdateText;
+		tasks[taskToUpdateId].name = taskToUpdateText;
+	} else {
+		tasks[taskToUpdateId].checked = taskToUpdateChecking;
 	}
-	
-	tasks[taskToUpdateId - 1].checked = taskToUpdateChecking;
 
 	var newTasks = JSON.stringify(tasks);
 	fs.writeFileSync(tasksJSONPath, newTasks);
@@ -56,7 +56,7 @@ app.delete('/tasks', function(request, respond) {
 
 	var tasks = JSON.parse(readJSONFile(tasksJSONPath));
 
-	tasks.splice(taskToDelete - 1, 1);
+	tasks.splice(taskToDelete, 1);
 
 	var newTasks = JSON.stringify(tasks);
 	fs.writeFileSync(tasksJSONPath, newTasks);

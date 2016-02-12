@@ -24,16 +24,12 @@ var tasks = {
 		};
 
 		this.current.splice(postData.id - 1, 0, taskToInsert);
-		// this.updateViewWithAdd();
-		this.updateView();
+		// this.updateView();
 
 		this.xhrRequester.send('/tasks', 'PUT', postData); //
 	},
 
 	delete: function(index) {
-		this.current.splice(index - 1, 1);
-		this.updateView();
-
 		this.xhrRequester.send('/tasks', 'DELETE', {
 			index: index 
 		});
@@ -58,56 +54,45 @@ var tasks = {
 			elements.tasksContainer.removeChild(elements.tasksContainer.lastChild);
 		}
 
+		var fragForTasks = document.createDocumentFragment();
+		var fragForOptions = document.createDocumentFragment();
+
 		this.current.forEach(function(task, taskIndex) {
 			var taskName = document.createElement("span");
 			taskName.className = 'todo__tasks__task--name';
 			taskName.setAttribute('contenteditable', true);
-			taskName.setAttribute('data-id', taskIndex + 1);
 			taskName.appendChild(document.createTextNode(task.name));
-
-			taskName.onblur = function () {
-				if (tasks.current[taskIndex].name === this.innerHTML) {
-					return;
-				}
-
-				tasks.current[taskIndex].name = this.innerHTML;
-
-				tasks.post({
-					checked: task.checked,
-					index: taskIndex + 1,
-					text: this.innerHTML
-				});
-			};
 
 			var checkbox = document.createElement('input');
 			checkbox.className = elements.checkboxClass;
 			checkbox.type = "checkbox";
 			checkbox.checked = task.checked;
-			checkbox.setAttribute('data-id', taskIndex + 1);
 
 			var deleteButton = document.createElement("button");
 			deleteButton.className = elements.buttonClass;
 			deleteButton.appendChild(document.createTextNode('delete'));
-			deleteButton.setAttribute('data-id', taskIndex + 1);
 
 			var newTask = document.createElement("li"); 
 			newTask.className = "todo__tasks__task";
 			newTask.appendChild(checkbox);
 			newTask.appendChild(taskName);
 			newTask.appendChild(deleteButton);
-
-			elements.tasksContainer.appendChild(newTask);
+			fragForTasks.appendChild(newTask);
 
 			var newOption = document.createElement("option");
 			newOption.appendChild(document.createTextNode(taskIndex + 1));
+			fragForOptions.appendChild(newOption);
 
 			elements.additionSelect.appendChild(newOption);
 		});
 		
+		elements.tasksContainer.appendChild(fragForTasks)
+
 		var newOption = document.createElement("option");
 		newOption.appendChild(document.createTextNode(this.current.length + 1));
-		//createdocumentfragment
-		elements.additionSelect.appendChild(newOption);
+		fragForOptions.appendChild(newOption);
+		
+		elements.additionSelect.appendChild(fragForOptions);
 	},
 
 	updateViewWithAdd: function() {
@@ -144,31 +129,56 @@ function XhrRequester() {
 	};
 }
 
+var getUlIndex = function(elem) {
+	return Array.prototype.indexOf.call(elem.parentNode.parentNode.childNodes, elem.parentNode);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
 	tasks.get();
 
+	// add
 	elements.additionForm.addEventListener('submit', function(event) {
 		event.preventDefault();
 		tasks.add(this);
 	});
 
+	// check
 	elements.tasksContainer.addEventListener('change', function(event) {
-		var id = event.target.getAttribute('data-id');
-		tasks.current[id - 1].checked = event.target.checked;
+		var id = getUlIndex(event.target);
+		var newCheckedState = event.target.checked;
+
+		tasks.current[id].checked = newCheckedState;
 
 		tasks.post({
-			checked: event.target.checked,
+			checked: newCheckedState,
 			index: id
 		});
 	});
 
+	// delete
 	elements.tasksContainer.addEventListener('click', function(event) {
 		if (event.target.className !== elements.buttonClass) {
 			return;
 		}
 
-		var id = event.target.getAttribute('data-id');
+		var id = getUlIndex(event.target);
+
+		tasks.current.splice(id, 1);
+
 		tasks.updateViewWithDelete(event.target);
 		tasks.delete(id);
+	});
+
+	// edit name
+	elements.tasksContainer.addEventListener('input', function(event) {
+		var id = getUlIndex(event.target);
+		var newName = event.target.innerHTML;
+
+		tasks.current[id].name = newName;
+
+		tasks.post({
+			index: id,
+			text: newName
+		});
 	});
 });
