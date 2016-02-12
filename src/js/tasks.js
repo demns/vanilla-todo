@@ -8,6 +8,32 @@ var elements = {
 	tasksContainer: document.getElementById("todo__tasks")
 };
 
+var documentElements = {
+	checkbox: (function() {
+		var checkbox = document.createElement('input');
+		checkbox.className = elements.checkboxClass;
+		checkbox.type = "checkbox";
+
+		return checkbox;
+	}()),
+
+	deleteButton: (function() {
+		var deleteButton = document.createElement("button");
+		deleteButton.className = elements.buttonClass;
+		deleteButton.appendChild(document.createTextNode('delete'));
+
+		return deleteButton;
+	}()),
+
+	taskName: (function() {
+		var taskName = document.createElement("span");
+		taskName.className = elements.nameClass;
+		taskName.setAttribute('contenteditable', true);
+
+		return taskName;
+	}())
+};
+
 var tasks = {
 	current: [],
 	xhrRequester: new XhrRequester(),
@@ -80,19 +106,13 @@ var tasks = {
 	},
 
 	createFragWithTask: function(fragForTasks, task, taskIndex) {
-		var taskName = document.createElement("span");
-		taskName.className = elements.nameClass;
-		taskName.setAttribute('contenteditable', true);
+		var taskName = documentElements.taskName.cloneNode(true);
 		taskName.appendChild(document.createTextNode(task.name));
 
-		var checkbox = document.createElement('input');
-		checkbox.className = elements.checkboxClass;
-		checkbox.type = "checkbox";
+		var checkbox = documentElements.checkbox.cloneNode(true);
 		checkbox.checked = task.checked;
 
-		var deleteButton = document.createElement("button");
-		deleteButton.className = elements.buttonClass;
-		deleteButton.appendChild(document.createTextNode('delete'));
+		var deleteButton = documentElements.deleteButton.cloneNode(true);
 
 		var newTask = document.createElement("li"); 
 		newTask.className = elements.taskContainerClass;
@@ -104,7 +124,6 @@ var tasks = {
 
 	updateViewWithAdd: function(newTodoData) {
 		var allTasks = elements.tasksContainer.getElementsByClassName(elements.taskContainerClass);
-
 		var fragForTasks = document.createDocumentFragment();
 
 		tasks.createFragWithTask(fragForTasks, newTodoData, newTodoData.id);
